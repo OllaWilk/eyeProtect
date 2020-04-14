@@ -17,18 +17,47 @@ class App extends React.Component {
   }
 
   step() {
-    console.log('ON')
-  };
+    this.setState({ time: this.state.time - 1 });
+
+    if(this.state.time === 0) {
+        this.setState ({
+        status: this.state.status === 'work'? 'rest' : 'work',
+        time: this.state.status === 'work'? 20 : 1200,
+      });
+      this.playBell();
+    }
+  }
+
+  timerInterval = setInterval(() => this.step(), 1000);
 
   startTimer = () => {
     this.setState({
       status: 'work',
       time: 1200,
-      timer: setInterval(() =>
-      this.step(), 1000
-      )
+      timer: this.timerInterval,
     });
   }
+
+  stopTimer = () => {
+    this.setState({
+      status: 'off',
+      time: 0,
+      timer: null,
+    })
+  }
+
+  componentWillUnmount () {
+    clearInterval(this.timerInterval)
+  }
+
+  closeApp() {
+    window.close();
+  }
+
+  playBell = () => {
+    const bell = new Audio('./sounds/bell.wav');
+    bell.play();
+  };
 
   render() {
     return (
@@ -55,10 +84,10 @@ class App extends React.Component {
             <div className="timer">
               {this.formatTime(this.state.time)}
             </div>
-            <button className="btn">Stop</button>
+            <button className="btn" onClick={this.stopTimer}>Stop</button>
           </section>
         ):''}
-        <button className="btn btn-close">X</button>
+        <button className="btn btn-close" onClick={this.closeApp}>X</button>
       </div>
     )
   }
